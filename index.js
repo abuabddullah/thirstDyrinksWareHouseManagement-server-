@@ -51,6 +51,14 @@ async function run() {
       res.send("get single item");
     });
 
+// post new item to db
+    app.post('/items', async (req, res) => {
+      const newItem = req.body;
+      const result = await itemsCollection.insertOne(newItem);
+      res.send(result);
+      console.log("posted new item");
+    });
+
 
 
   } finally {
