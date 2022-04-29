@@ -29,16 +29,14 @@ async function run() {
       const query = {};
       const cursor = itemsCollection.find(query);
       const items = await cursor.toArray();
-      // res.send(items);
-      res.send("get all items");
+      res.send(items);
     });
 
 
     // get no of cout of all items of db
     app.get('/itemsCount', async (req, res) => {
       const count = await itemsCollection.estimatedDocumentCount();
-      // res.send({count});
-      res.send("{itemsCount}");
+      res.send({ count });
     });
 
 
@@ -46,21 +44,32 @@ async function run() {
     app.get('/items/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
-      const item = await itemsCollection.findOne(query);
-      // res.send(item);
-      res.send("get single item");
+      const result = await itemsCollection.findOne(query);
+      res.send(result);
+      // res.send("get single item");
     });
 
-// post new item to db
+
+    // post new item to db
     app.post('/items', async (req, res) => {
       const newItem = req.body;
       const result = await itemsCollection.insertOne(newItem);
       res.send(result);
-      console.log("posted new item");
     });
 
 
-
+    // put and edit an item by id in db
+    app.put('/items/:id', async (req, res) => {
+      const id = req.params.id;
+      const updatedItem = req.body;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: updatedItem
+      }
+      const result = await itemsCollection.updateOne(filter, updatedDoc, options);
+      res.send(result);
+    });
   } finally {
 
   }
