@@ -118,14 +118,16 @@ async function run() {
       const tokenInfo = req.headers.authorization;
       
       const [email, accessToken] = tokenInfo.split(' ');
-      console.log(accessToken);
-
+      
+      
       const decodedEmail = verifyToken(accessToken);
+      console.log(email === decodedEmail);
 
       if (email === decodedEmail) {
         const query = {email : email};
         const cursor = itemsCollection.find(query);
         const results = await cursor.toArray();
+        // console.log(results);
         res.send(results);
       } else {
         res.send({ error: '403 ! Access Forbidden' });
@@ -141,6 +143,7 @@ async function run() {
           email = 'invalid email';
         } else if (decoded) {
           email = decoded.email;
+          // console.log("email,", email);
         }
       })
       return email;
