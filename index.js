@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
+const jwt = require('jsonwebtoken');
 
 
 const app = express()
@@ -79,6 +80,30 @@ async function run() {
       const result = await itemsCollection.deleteOne(query);
       res.send(result);
     });
+
+
+
+    // generating decoded mail-token during login
+    app.post('/login', async (req, res) => {
+      const email = req.body;
+      const accessToken = jwt.sign(email, process.env.ACCESS_TOKEN_SECRET);
+      res.send({ accessToken });
+    });
+
+
+    // verifying mail-token and allowing data to get
+    app.get('/myItems', async (req, res) => {    
+
+      const email=req.query.email;
+      // console.log(email);
+      const query = { email: email };
+      const cursor = itemsCollection.find(query);
+      const items = await cursor.toArray();
+      res.send(items);
+    });
+
+
+    
 
 
 
