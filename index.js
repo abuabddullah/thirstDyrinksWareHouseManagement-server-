@@ -22,9 +22,10 @@ app.use(express.json())
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.rlooh.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
-console.log(uri);
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
+// console.log(uri);
+// console.log(process.env.ACCESS_TOKEN_SECRET);
 
 async function run() {
   try {
@@ -92,6 +93,7 @@ async function run() {
 
     // generating decoded mail-token during login
     app.post('/login', async (req, res) => {
+      console.log(req.body);
       const email = req.body;
       const accessToken = jwt.sign(email, process.env.ACCESS_TOKEN_SECRET);
       res.send({ accessToken });
