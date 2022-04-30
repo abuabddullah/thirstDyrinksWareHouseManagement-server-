@@ -100,19 +100,51 @@ async function run() {
     });
 
 
-    // verifying mail-token and allowing data to get
-    app.get('/myItems', async (req, res) => {    
+    // // allowing data to get asper email
+    // app.get('/myItems', async (req, res) => {    
 
-      const email=req.query.email;
-      // console.log(email);
-      const query = { email: email };
-      const cursor = itemsCollection.find(query);
-      const items = await cursor.toArray();
-      res.send(items);
-    });
+    //   const email=req.query.email;
+    //   // console.log(email);
+    //   const query = { email: email };
+    //   const cursor = itemsCollection.find(query);
+    //   const items = await cursor.toArray();
+    //   res.send(items);
+    // });
 
 
-    
+
+    // allowing data to get asper email
+    app.get('/myItems', async (req, res) => {
+      const tokenInfo = req.headers.authorization;
+      
+      const [email, accessToken] = tokenInfo.split(' ');
+      console.log(accessToken);
+
+      const decodedEmail = verifyToken(accessToken);
+
+      if (email === decodedEmail) {
+        const query = {email : email};
+        const cursor = itemsCollection.find(query);
+        const results = await cursor.toArray();
+        res.send(results);
+      } else {
+        res.send({ error: '403 ! Access Forbidden' });
+      }
+    })
+
+
+    // verifying access token with decoded token
+    function verifyToken(accessToken) {
+      let email;
+      jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, function (error, decoded) {
+        if (error) {
+          email = 'invalid email';
+        } else if (decoded) {
+          email = decoded.email;
+        }
+      })
+      return email;
+    }
 
 
 
