@@ -116,15 +116,15 @@ async function run() {
     // allowing data to get asper email
     app.get('/myItems', async (req, res) => {
       const tokenInfo = req.headers.authorization;
-      
+
       const [email, accessToken] = tokenInfo.split(' ');
-      
-      
+
+
       const decodedEmail = verifyToken(accessToken);
       console.log(email === decodedEmail);
 
       if (email === decodedEmail) {
-        const query = {email : email};
+        const query = { email: email };
         const cursor = itemsCollection.find(query);
         const results = await cursor.toArray();
         // console.log(results);
@@ -149,6 +149,52 @@ async function run() {
       return email;
     }
 
+
+
+    /**
+     * blogs related APIs
+     */
+
+
+
+    const blogsCollection = client.db("ItemsDB").collection("blogs");
+
+
+    // POST new blog to db
+    app.post('/blogs', async (req, res) => {
+      const newBlog = req.body;
+      console.log(newBlog);
+      const tokenInfo = req.headers.authorization;
+      console.log(tokenInfo);
+      const [email, accessToken] = tokenInfo.split(' ');
+      const decodedEmail = verifyToken(accessToken);
+      if (email === decodedEmail) {
+        const result = await blogsCollection.insertOne(newBlog);
+        res.send(result);
+      } else {
+        res.send({ error: '403 ! Access Forbidden' });
+      }
+    });
+
+
+
+    // get all items from db
+    app.get('/blogs', async (req, res) => {
+      const query = {};
+      const cursor = blogsCollection.find(query);
+      const results = await cursor.toArray();
+      res.send(results);
+    });
+
+
+    // get single blog by id from db
+    app.get('/blogs/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await blogsCollection.findOne(query);
+      res.send(result);
+      // res.send("get single item");
+    });
 
 
   } finally {
