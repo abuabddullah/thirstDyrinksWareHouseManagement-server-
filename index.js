@@ -9,13 +9,6 @@ const app = express()
 const port = process.env.PORT || 5000;
 
 
-// const corsConfig = {
-//   origin: true,
-//   credentials: true,
-// }
-// app.use(cors(corsConfig))
-// app.options('*', cors(corsConfig))
-
 app.use(cors())
 app.use(express.json())
 
@@ -24,8 +17,6 @@ app.use(express.json())
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.rlooh.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
-// console.log(uri);
-// console.log(process.env.ACCESS_TOKEN_SECRET);
 
 async function run() {
   try {
@@ -33,12 +24,30 @@ async function run() {
     const itemsCollection = client.db("ItemsDB").collection("items");
     console.log("Connected to MongoDB");
 
-    // get all items from db
+    // // get all items from db
+    // app.get('/items', async (req, res) => {
+    //   const query = {};
+    //   const cursor = itemsCollection.find(query);
+    //   const items = await cursor.toArray();
+    //   res.send(items);
+    // });
+
+
+    // get all items from db as per pagination
     app.get('/items', async (req, res) => {
+      console.log('query', req.query);
+      const currentPage = parseInt(req.query.currentPage);
+      const perPageProducts = parseInt(req.query.perPageProducts);
       const query = {};
       const cursor = itemsCollection.find(query);
-      const items = await cursor.toArray();
+      let items;
+      if (currentPage || perPageProducts) {
+        items = await cursor.skip(currentPage * perPageProducts).limit(perPageProducts).toArray();
+      } else {
+        items = await cursor.toArray();
+      }
       res.send(items);
+      console.log('items', items);
     });
 
 
@@ -98,18 +107,6 @@ async function run() {
       const accessToken = jwt.sign(email, process.env.ACCESS_TOKEN_SECRET);
       res.send({ accessToken });
     });
-
-
-    // // allowing data to get asper email
-    // app.get('/myItems', async (req, res) => {    
-
-    //   const email=req.query.email;
-    //   // console.log(email);
-    //   const query = { email: email };
-    //   const cursor = itemsCollection.find(query);
-    //   const items = await cursor.toArray();
-    //   res.send(items);
-    // });
 
 
 
