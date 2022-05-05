@@ -23,19 +23,11 @@ async function run() {
     await client.connect();
     const itemsCollection = client.db("ItemsDB").collection("items");
     console.log("Connected to MongoDB");
-
-    // // get all items from db
-    // app.get('/items', async (req, res) => {
-    //   const query = {};
-    //   const cursor = itemsCollection.find(query);
-    //   const items = await cursor.toArray();
-    //   res.send(items);
-    // });
+    
 
 
     // get all items from db as per pagination
     app.get('/items', async (req, res) => {
-      console.log('query', req.query);
       const currentPage = parseInt(req.query.currentPage);
       const perPageProducts = parseInt(req.query.perPageProducts);
       const query = {};
@@ -47,7 +39,6 @@ async function run() {
         items = await cursor.toArray();
       }
       res.send(items);
-      console.log('items', items);
     });
 
 
@@ -102,7 +93,6 @@ async function run() {
 
     // generating decoded mail-token during login
     app.post('/login', async (req, res) => {
-      console.log(req.body);
       const email = req.body;
       const accessToken = jwt.sign(email, process.env.ACCESS_TOKEN_SECRET);
       res.send({ accessToken });
@@ -118,13 +108,11 @@ async function run() {
 
 
       const decodedEmail = verifyToken(accessToken);
-      console.log(email === decodedEmail);
 
       if (email === decodedEmail) {
         const query = { email: email };
         const cursor = itemsCollection.find(query);
         const results = await cursor.toArray();
-        // console.log(results);
         res.send(results);
       } else {
         res.send({ error: '403 ! Access Forbidden' });
@@ -140,7 +128,6 @@ async function run() {
           email = 'invalid email';
         } else if (decoded) {
           email = decoded.email;
-          // console.log("email,", email);
         }
       })
       return email;
@@ -160,9 +147,7 @@ async function run() {
     // POST new blog to db
     app.post('/blogs', async (req, res) => {
       const newBlog = req.body;
-      console.log(newBlog);
       const tokenInfo = req.headers.authorization;
-      console.log(tokenInfo);
       const [email, accessToken] = tokenInfo.split(' ');
       const decodedEmail = verifyToken(accessToken);
       if (email === decodedEmail) {
