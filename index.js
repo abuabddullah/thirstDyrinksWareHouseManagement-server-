@@ -14,14 +14,14 @@ app.use(express.json())
 
 
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.rlooh.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+// const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.rlooh.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+const client = new MongoClient(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
 async function run() {
   try {
     await client.connect();
-    const itemsCollection = client.db("ItemsDB").collection("items");
+    const itemsCollection = client.db("ThirstyDrinksDB").collection("items");
     console.log("Connected to MongoDB");
     
 
@@ -141,7 +141,7 @@ async function run() {
 
 
 
-    const blogsCollection = client.db("ItemsDB").collection("blogs");
+    const blogsCollection = client.db("ThirstyDrinksDB").collection("blogs");
 
 
     // POST new blog to db
